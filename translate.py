@@ -99,13 +99,33 @@ def minicard(word, url_tr, cur_token):
         return None, None
 
 
+def ru_transl2anki(en_word, curr_token):
+    word_tr, infinitive = minicard(en_word, URL_TRANSLATE, curr_token)
+    if word_tr is None:
+        return
+    use_example = use_example(en_word, tr.tr_dict)
+    if en_word != infinitive:
+        result = f'{en_word} ({infinitive})\t{word_tr}{use_example}'
+    else:
+        result = f'{en_word}\t{word_tr}{use_example}'
+    with open('words.txt', 'a', encoding='utf-8') as out:
+        out.write(result + '\n')
+    
+    if en_word != infinitive:
+        result = f'{word_tr}\t{en_word} ({infinitive}){use_example}'
+    else:
+        result = f'{word_tr}\t{en_word}{use_example}'
+    with open('words_ru-en.txt', 'a', encoding='utf-8') as out:
+        out.write(result + '\n')
+
+
 files = os.listdir()
 for file in files:
     if file.endswith('en.srt'):
         en_sub = file
     if file.endswith('ru.srt'):
         ru_sub = file
-en_list = create_list(en_sub)
-ru_list = create_list(ru_sub)
+# en_list = create_list(en_sub)
+# ru_list = create_list(ru_sub)
         
-tr_dict = create_tr_dict(en_list, ru_list)
+# tr_dict = create_tr_dict(en_list, ru_list)
