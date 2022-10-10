@@ -1,11 +1,11 @@
 When you click on a word, potplayer brings the meaning of the word from the explanatory dictionary to your browser, and adds the word to the anki cards.
 
 There are two versions:
-Lite:
+## Lite:
 - Word meanings from cambridge dictionary, wikipedia
 - Examples of use from subtitles
 
-Bert:
+## Bert:
 Same as lite, plus the following features:
 - Sorting cambridge dictionary word meanings given the context of the sentence. Those meanings that are closer to the phrase will be higher. Sorting goes by cosine similarity of Bert's embedding vectors.
 
