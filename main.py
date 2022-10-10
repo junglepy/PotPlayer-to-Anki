@@ -2,11 +2,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
-import translate as tr
 import anki_importer as ank
 
 
-curr_token = tr.get_auth(tr.KEY, tr.URL_AUTH)
 anki_file = 'anki_en-en.txt'
 translate_type = 'en-en' #'en-ru'
 
@@ -20,9 +18,7 @@ class MyServer(BaseHTTPRequestHandler):
         dict_params = parse_qs(query.query)
         if 'word' in dict_params:
             en_word = dict_params['word'][0]
-            if translate_type == 'en-ru':
-                tr.ru_transl2anki(en_word, curr_token)
-            elif translate_type == 'en-en':
+            if translate_type == 'en-en':
                 html_out = ank.anki_write(en_word, anki_file)
         
         self.send_response(200)

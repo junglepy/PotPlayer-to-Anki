@@ -11,3 +11,5 @@ Same as lite, plus the following features:
 
 - Output synonyms for the word. The [Mask] is used in the Bert model. The predicted variants are further compared by cosine similarity to the original phrase.
 
+## Install:
+Run install.py

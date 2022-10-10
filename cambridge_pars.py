@@ -7,18 +7,10 @@ from lxml import html, etree
 import wikipedia as wiki
 from wikipedia import PageError,DisambiguationError
 from collections import OrderedDict
-media_folder = '/home/junglepy/snap/anki-ppd/common/anki/User 1/collection.media/' # Linux
-media_folder = r"C:/Users/Eduard/AppData/Roaming/Anki2/User 1/collection.media2/" #W10 TODO!!!
+import config
 
-#adding examples of word usage from subs, arxiv, article or other processed text
-EXAMPLES_FROM_TEXT = True
-#number of word meanings from the cambridge dictionary
-N_MEANINGS = 2
-#the number of examples of word usage in different contexts
-N_EXAMPLES = 2
-
-#http://login:pass@255.255.255.255:port proxy pattern
-proxy_list = []
+media_folder = config.media_folder
+proxy_list = config.proxy_list
 
 
 headers_list = [
@@ -98,15 +90,13 @@ def get_meanings(content):
     word_meanings = OrderedDict()
     big_blocks = content.xpath('//div[@class="def-block ddef_block "]')
     for i, block in enumerate(big_blocks):
-        if i >= N_MEANINGS:
-            break
         block = html.fromstring(html.tostring(block, encoding='unicode'))
         # Add meaning
         meaning_raw = block.xpath('//div[@class="ddef_h"]//div[@class="def ddef_d db"]')
         meaning = ''.join(meaning_raw[0].itertext()).removesuffix(': ')
         # Add examples
         examples = []
-        for n_examp in range(N_EXAMPLES):
+        for n_examp in range(config.N_EXAMPLES):
             try:
                 examples_raw = block.xpath('//div[@class="def-body ddef_b"]//div[@class="examp dexamp"]')
                 cur_example = ''.join(examples_raw[n_examp].itertext()).strip()
@@ -156,58 +146,6 @@ def requests2json(word):
     mean_json['search_links'] = search_links
     return mean_json
 
-
-def bold_keyword(p, example):
-    for m in p.finditer(example):
-        s = m.start()
-        e = m.end()
-        example = example[:s]+'<b>'+example[s:e]+'</b>'+example[e:]
-    return example
-
-
-def create_description(word, word_json, spec_examples=None, n_spec_ex=4):
-    p = re.compile(word)
-    examples_str = ''
-    if spec_examples:
-        examples_str = '<i><sub><ul>'
-        for example in spec_examples[:n_spec_ex]:
-            examples_str += f'<li>{example}</li>'
-        examples_str += '</ul></i></sub>'
-        if len(spec_examples) > n_spec_ex:
-            examples_str += '<i><sub><details><summary>more:</summary><ul>'
-            for example in spec_examples[n_spec_ex:]:
-                examples_str += f'<li>{example}</li>'
-            examples_str += '</ul></details></i></sub><br><br>'
-    meaning = ''
-    if isinstance(word_json['meaning'], dict) and len(word_json['meaning'])>0:
-        for mean, examples in word_json['meaning'].items():
-            meaning += f'<div><b>{mean}</b><br></div>'
-            if len(examples) > 0:
-                meaning += '<i><sub><details><summary>Examples:</summary><ul>'
-                for example in examples:
-                    example = bold_keyword(p, example)
-                    meaning += f'<li>{example}</li>'
-                meaning += '</ul></details></i></sub>'
-        meaning += '<br><br>'
-    elif isinstance(word_json['meaning'], str):
-        meaning += f'<div><b>{word_json["meaning"]}</b><br></div>'
-    else:
-        meaning += '~'
-    audio = ''
-    if word_json['us_audio'] != '-':
-            audio += f"[sound:{word_json['audio_filename']}]<br>"
-    search_links = word_json['search_links']
-    goog = search_links['google']
-    yand = search_links['yandex']
-    wiki = search_links['wiki']
-    camb = search_links['camb']
-    links = f'<br><sub><a href="{camb}">Camb</a>|<a href="{wiki}">Wiki</a>|<a href="{goog}">G</a>|<a href="{yand}">Y</a></sub>'
-    
-    anki_description = examples_str + meaning + audio + links
-    anki_import = f'{word}\t{anki_description}'
-    
-    return anki_import, anki_description
-    
 
 def wiki_summary(word, auto_suggest=False):
     try:
